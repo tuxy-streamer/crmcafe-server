@@ -1,0 +1,20 @@
+{
+  "name": "crmcafe-server",
+  "module": "./src/server.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch run ./src/server.ts",
+    "build": "bun build ./src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "fastify": "^5.6.1",
+    "pino-pretty": "^13.1.2"
+  }
+}
