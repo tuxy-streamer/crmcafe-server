@@ -9,19 +9,19 @@ const healthHandler: RouteOptions["handler"] = async (
   reply: FastifyReply,
 ): Promise<void> => {
   request.log.info("Request Received");
-  reply.send({ message: "Welcome to CRM-Café's server" });
+  reply.send({ status: "ok" });
 };
 
 export const HealthRoute: RouteOptions = {
   method: "GET",
-  url: "/",
+  url: "/health",
   handler: healthHandler,
   schema: {
     response: {
       200: {
         type: "object",
         properties: {
-          message: { type: "string" },
+          status: { type: "string" },
         },
       },
     },

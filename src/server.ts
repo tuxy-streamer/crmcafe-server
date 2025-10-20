@@ -1,10 +1,12 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { loggerOptions } from "./util/log";
 import { IndexRoute } from "./routes/index";
+import { HealthRoute } from "./routes/health";
 
 const server: FastifyInstance = Fastify({ logger: loggerOptions });
 
 server.route(IndexRoute);
+server.route(HealthRoute);
 
 server.listen(
   {
