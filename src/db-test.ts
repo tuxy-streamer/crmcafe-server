@@ -1,4 +1,4 @@
-import { sql } from "./db/db";
+import { sql } from "./db";
 
 async function testDb() {
   try {
