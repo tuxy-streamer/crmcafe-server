@@ -5,28 +5,31 @@ import { buildUpdateSet, buildPagination, buildFilters } from "../util/sql";
 export async function registerCallRoutes(app: FastifyInstance): Promise<void> {
   app.get("/calls", async (req) => {
     const query = req.query as any;
-    const { limit, offset } = buildPagination({ page: query.page, limit: query.limit });
+    const { limit, offset } = buildPagination({
+      page: query.page,
+      limit: query.limit,
+    });
     const { whereClause, values } = buildFilters(query);
-    
+
     const countResult = await sql.unsafe(
       `SELECT COUNT(*) as total FROM calls ${whereClause}`,
-      values
+      values,
     );
     const total = Number(countResult[0]?.total || 0);
-    
+
     const rows = await sql.unsafe(
       `SELECT * FROM calls ${whereClause} ORDER BY call_id LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
-      [...values, limit, offset]
+      [...values, limit, offset],
     );
-    
+
     return {
       data: rows,
       pagination: {
         page: Math.floor(offset / limit) + 1,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   });
 
@@ -39,7 +42,16 @@ export async function registerCallRoutes(app: FastifyInstance): Promise<void> {
 
   app.post("/calls", async (req) => {
     const b = req.body as Partial<{
-      customer_id: number; user_id: number | null; call_time: string; call_duration_seconds: number | null; call_recording_path: string | null; transcription_text: string | null; summary_text: string | null; sentiment: string | null; embedding_vector: unknown | null; model_used: string | null;
+      customer_id: number;
+      user_id: number | null;
+      call_time: string;
+      call_duration_seconds: number | null;
+      call_recording_path: string | null;
+      transcription_text: string | null;
+      summary_text: string | null;
+      sentiment: string | null;
+      embedding_vector: unknown | null;
+      model_used: string | null;
     }>;
     const rows = await sql`
       INSERT INTO calls (customer_id, user_id, call_time, call_duration_seconds, call_recording_path, transcription_text, summary_text, sentiment, embedding_vector, model_used)
@@ -78,5 +90,3 @@ export async function registerCallRoutes(app: FastifyInstance): Promise<void> {
     return { deleted: rows.length > 0 };
   });
 }
-
-

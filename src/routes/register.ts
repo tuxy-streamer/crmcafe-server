@@ -16,5 +16,3 @@ export async function registerAllRoutes(app: FastifyInstance): Promise<void> {
   await registerMessageRoutes(app);
   await registerTaskRoutes(app);
 }
-
-

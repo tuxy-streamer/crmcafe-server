@@ -5,28 +5,31 @@ import { buildUpdateSet, buildPagination, buildFilters } from "../util/sql";
 export async function registerTagRoutes(app: FastifyInstance): Promise<void> {
   app.get("/tags", async (req) => {
     const query = req.query as any;
-    const { limit, offset } = buildPagination({ page: query.page, limit: query.limit });
+    const { limit, offset } = buildPagination({
+      page: query.page,
+      limit: query.limit,
+    });
     const { whereClause, values } = buildFilters(query);
-    
+
     const countResult = await sql.unsafe(
       `SELECT COUNT(*) as total FROM tags ${whereClause}`,
-      values
+      values,
     );
     const total = Number(countResult[0]?.total || 0);
-    
+
     const rows = await sql.unsafe(
       `SELECT * FROM tags ${whereClause} ORDER BY tag_id LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
-      [...values, limit, offset]
+      [...values, limit, offset],
     );
-    
+
     return {
       data: rows,
       pagination: {
         page: Math.floor(offset / limit) + 1,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   });
 
@@ -39,7 +42,8 @@ export async function registerTagRoutes(app: FastifyInstance): Promise<void> {
 
   app.post("/tags", async (req) => {
     const b = req.body as { name: string };
-    const rows = await sql`INSERT INTO tags (name) VALUES (${b.name}) RETURNING *`;
+    const rows =
+      await sql`INSERT INTO tags (name) VALUES (${b.name}) RETURNING *`;
     return rows[0];
   });
 
@@ -62,5 +66,3 @@ export async function registerTagRoutes(app: FastifyInstance): Promise<void> {
     return { deleted: rows.length > 0 };
   });
 }
-
-

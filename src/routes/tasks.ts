@@ -5,28 +5,31 @@ import { buildUpdateSet, buildPagination, buildFilters } from "../util/sql";
 export async function registerTaskRoutes(app: FastifyInstance): Promise<void> {
   app.get("/tasks", async (req) => {
     const query = req.query as any;
-    const { limit, offset } = buildPagination({ page: query.page, limit: query.limit });
+    const { limit, offset } = buildPagination({
+      page: query.page,
+      limit: query.limit,
+    });
     const { whereClause, values } = buildFilters(query);
-    
+
     const countResult = await sql.unsafe(
       `SELECT COUNT(*) as total FROM tasks ${whereClause}`,
-      values
+      values,
     );
     const total = Number(countResult[0]?.total || 0);
-    
+
     const rows = await sql.unsafe(
       `SELECT * FROM tasks ${whereClause} ORDER BY task_id LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
-      [...values, limit, offset]
+      [...values, limit, offset],
     );
-    
+
     return {
       data: rows,
       pagination: {
         page: Math.floor(offset / limit) + 1,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   });
 
@@ -39,11 +42,15 @@ export async function registerTaskRoutes(app: FastifyInstance): Promise<void> {
 
   app.post("/tasks", async (req) => {
     const b = req.body as Partial<{
-      customer_id: number; assigned_to: number | null; task_description: string; due_date: string | null; status: string | null;
+      customer_id: number;
+      assigned_to: number | null;
+      task_description: string;
+      due_date: string | null;
+      status: string | null;
     }>;
     const rows = await sql`
       INSERT INTO tasks (customer_id, assigned_to, task_description, due_date, status)
-      VALUES (${b?.customer_id ?? null}, ${b?.assigned_to ?? null}, ${b?.task_description ?? null}, ${b?.due_date ?? null}, ${b?.status ?? 'pending'})
+      VALUES (${b?.customer_id ?? null}, ${b?.assigned_to ?? null}, ${b?.task_description ?? null}, ${b?.due_date ?? null}, ${b?.status ?? "pending"})
       RETURNING *`;
     return rows[0];
   });
@@ -67,5 +74,3 @@ export async function registerTaskRoutes(app: FastifyInstance): Promise<void> {
     return { deleted: rows.length > 0 };
   });
 }
-
-

@@ -1,8 +1,14 @@
 import { type FastifyInstance } from "fastify";
 import { sql } from "../db";
 
-export async function registerCustomerTagRoutes(app: FastifyInstance): Promise<void> {
-  app.get("/customer-tags", async () => await sql`SELECT * FROM customer_tags ORDER BY customer_id, tag_id`);
+export async function registerCustomerTagRoutes(
+  app: FastifyInstance,
+): Promise<void> {
+  app.get(
+    "/customer-tags",
+    async () =>
+      await sql`SELECT * FROM customer_tags ORDER BY customer_id, tag_id`,
+  );
 
   app.post("/customer-tags", async (req) => {
     const b = req.body as { customer_id: number; tag_id: number };
@@ -16,9 +22,8 @@ export async function registerCustomerTagRoutes(app: FastifyInstance): Promise<v
 
   app.delete("/customer-tags", async (req) => {
     const b = req.body as { customer_id: number; tag_id: number };
-    const rows = await sql`DELETE FROM customer_tags WHERE customer_id=${b.customer_id} AND tag_id=${b.tag_id} RETURNING *`;
+    const rows =
+      await sql`DELETE FROM customer_tags WHERE customer_id=${b.customer_id} AND tag_id=${b.tag_id} RETURNING *`;
     return { deleted: rows.length > 0 };
   });
 }
-
-
